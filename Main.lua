@@ -1,93 +1,4 @@
 
-
-local s, r = pcall(game.HttpGet, game, 'https://raw.githubusercontent.com/wally-rblx/roblox-scripts/main/criminality_esp.lua')
-if s and loadstring(r) then
-   pcall(loadstring(r))
-else
-   setclipboard("FAIL")
-end
-
-loadstring(game:HttpGet("https://pastebin.com/raw/ZQzw4tBr"))()
-
--- START OF MY SCRIPT: VVVVVV
-
-local TextTemplate = "[%s] - [%s]\n[%s]\n[%s] - [%s]" -- Name, DisplayName, Visible, Health, Holding
-
-local Camera = game.Workspace.CurrentCamera
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-
-local ESP = {}
-
-function WorldToScreen(Position)
-    local Screen, OnScreen = Camera:WorldToViewportPoint(Position)
-    return Vector2.new(Screen.x, Screen.y), OnScreen 
-end
-
-local CreateESP = function(Player, Options) -- CreateESP({Part, Text, Color, Position, Size})
-    if Options == nil then return end
-
-    local Part = Player.Character.Head
-    local Position, OnSCreen = WorldToScreen(Part.Position)
-
-    local Object = Drawing.new("Text")
-
-    local Tool = Player.Character:FindFirstChildOfClass("Tool") or {Name = "NIL"}
-    local Text = TextTemplate:format(Player.Name, Player.DisplayName, math.floor(Player.Character.Humanoid.Health), "OFF-Screen", Tool.Name) -- Name, DisplayName, Health, Holding
-    
-    Object.Color = Options.Color or Color3.new(1,1,1)
-    Object.Position = Position
-    Object.Size = Options.Size or 19
-    Object.Outline = true
-    Object.Center = true
-    Object.Visible = true
-
-    game:GetService('RunService').Stepped:Connect(function()
-        pcall(function()
-            local WorkspaceDescendant = Part:IsDescendantOf(game.Workspace)
-
-            if not WorkspaceDescendant then Object:Remove() end
-
-            local Position, OnScreen = WorldToScreen(Part.Position)
-
-            if Part ~= nil then
-                Object.Position = Position
-                local Ray = Ray.new(workspace.CurrentCamera.CFrame.p, (Player.Character.HumanoidRootPart.Position - workspace.CurrentCamera.CFrame.p).unit * 2048)
-				local block = workspace:FindPartOnRayWithIgnoreList(Ray, {game.Players.LocalPlayer.Character})
-                local Visible = "OFF-Screen"
-                print(block)
-                if block ~= nil then
-                    if block:IsDescendantOf(Player.Character) then
-                        Visible = "VISIBLE"
-                    end
-                end
-                local Tool = Player.Character:FindFirstChildOfClass("Tool") or {Name = "NIL"}
-                local Text = TextTemplate:format(Player.Name, Player.DisplayName, math.floor(Player.Character.Humanoid.Health), Visible, Tool.Name) -- Name, DisplayName, Health, Holding
-                Object.Text = Text
-            end
-
-            Object.Visible = OnScreen
-        end)
-    end)
-end
-
-local FriendsList = {Ethangodatgame = "Ethangodatgame", Luna_luff = "Luna_luff", Stanleyisgodatgame = "Stanleyisgodatgame", V7IKU = "V7IKU", mrmrmrmrmrsas = "mrmrmrmrmrsas", IlIIlllIlIIlIIlIlIIl = "IlIIlllIlIIlIIlIlIIl"}
-
-function Simply(Player)
-    if FriendsList[Player.Name] then
-        CreateESP(Player, {Color = Color3.new(1,1,1)})
-    else
-        CreateESP(Player, {Color = Color3.new(0,1,1)})
-    end
-end
-
--- Gui to Lua
--- Version: 3.2
-
--- Instances:
-
 local Compass = Instance.new("ScreenGui")
 local Compass_2 = Instance.new("Frame")
 local SW = Instance.new("TextLabel")
@@ -280,47 +191,27 @@ function restrictAngle(angle)
 	end
 end
 
-task.spawn(function()
-    while true do
-        local delta = wait(1/30)
+while true do
+local delta = wait(1/30)
 
-        local look = camera.CoordinateFrame.lookVector
-        local look = Vector3.new(look.x, 0, look.z).unit
-        local lookY = math.atan2(look.z, look.x)
+local look = camera.CoordinateFrame.lookVector
+local look = Vector3.new(look.x, 0, look.z).unit
+local lookY = math.atan2(look.z, look.x)
 
-        local difY = restrictAngle(lookY - lastY)
-        lookY = restrictAngle(lastY + difY*delta*smoothness)
-        lastY = lookY
+local difY = restrictAngle(lookY - lastY)
+lookY = restrictAngle(lastY + difY*delta*smoothness)
+lastY = lookY
 
-        for unit, rot in pairs(units) do
-            rot = restrictAngle(lookY - rot)
-            if math.sin(rot) > 0 then
-                local cosRot = math.cos(rot)
-                local cosRot2 = cosRot*cosRot
+for unit, rot in pairs(units) do
+    rot = restrictAngle(lookY - rot)
+    if math.sin(rot) > 0 then
+	local cosRot = math.cos(rot)
+	local cosRot2 = cosRot*cosRot
 
-                unit.Visible = true
-                unit.Position = UDim2.new(0.5 + cosRot*0.6, unit.Position.X.Offset, 0, 3)
-            else
-                unit.Visible = false
-            end
-        end
+	unit.Visible = true
+	unit.Position = UDim2.new(0.5 + cosRot*0.6, unit.Position.X.Offset, 0, 3)
+    else
+	unit.Visible = false
     end
-end)
--- COMPASS END
-
-game.Players.PlayerAdded:Connect(function(Player)
-    Player.CharacterAdded:Connect(function()
-        wait(5)
-        Simply(Player)
-    end)
-end)
-
-for i,v in pairs(game.Players:GetPlayers()) do
-    if v ~= game.Players.LocalPlayer then
-        v.CharacterAdded:Connect(function()
-            wait(5)
-            Simply(v)
-        end)
-        Simply(v)
-    end
+end
 end
